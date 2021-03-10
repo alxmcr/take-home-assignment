@@ -72,6 +72,11 @@ This      is a second paragraph with extraneous whitespace.`);
     return paragraphFormatted;
   }
 
+  const handleReset = () => {
+    setTextInput("");
+    setTextOutput("");
+  };
+
   return (
     <div className="App">
       <header>
@@ -82,6 +87,7 @@ This      is a second paragraph with extraneous whitespace.`);
           <textarea onChange={handleChange} value={textInput}/>
         </label>
         <input type="submit" value="Submit"/>
+        <input type="reset" value="Reset" onClick={handleReset} />
       </form>
       <div id="result">
         {textOutput}
