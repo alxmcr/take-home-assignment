@@ -34,11 +34,10 @@ This      is a second paragraph with extraneous whitespace.`);
       paragraphsFormatted.push(paragraphFormatted);
     })
 
-    if (paragraphsFormatted.length > 1) {
-      output = paragraphsFormatted.join(DOUBLE_LINE_BREAK);
-    } else {
-      output = paragraphsFormatted;
-    }
+    output = paragraphsFormatted.length > 1
+      ? paragraphsFormatted.join(DOUBLE_LINE_BREAK)
+      : paragraphsFormatted[0];
+
     setTextOutput(output);
   }
 
@@ -48,28 +47,35 @@ This      is a second paragraph with extraneous whitespace.`);
     const words = paragraphReplaceLineBreak.split(SPACE);
     const wordsValid = words.filter(word => word !== EMPTY)
     let line = "";
+
     wordsValid.forEach((word) => {
       const currentLineLength = line.length;
       const wordLength = word.length;
       const lineLength = currentLineLength + wordLength;
 
-      if (lineLength <= MAX_LENGTH_BY_LINE) {
-        if (line === "") {
-          line = word;
-        } else {
-          line = line + " " + word;
-        }
-      } else {
-        paragraphFormatted = paragraphFormatted + line;
-        if (line === "") {
-          line = word;
-        } else {
-          line = "\n" + word;
-        }
-      }
+      paragraphFormatted = lineLength > MAX_LENGTH_BY_LINE
+        ? paragraphFormatted + line
+        : paragraphFormatted;
+
+      line = lineLength <= MAX_LENGTH_BY_LINE
+        ? appendWordToLine(line, word)
+        : createNewLineWithWord(line, word);
     })
     paragraphFormatted = paragraphFormatted + line;
     return paragraphFormatted;
+  }
+
+  /*
+    We set the word value directly because,
+    it can be first word and
+    it can have more than 80 characters
+  */
+  const appendWordToLine = (line, word) => {
+    return line === "" ? word : line + " " + word;
+  }
+
+  const createNewLineWithWord = (line, word) => {
+    return line === "" ? word : "\n" + word;
   }
 
   const handleReset = () => {
@@ -84,9 +90,9 @@ This      is a second paragraph with extraneous whitespace.`);
       </header>
       <form onSubmit={handleSubmit}>
         <label>
-          <textarea onChange={handleChange} value={textInput}/>
+          <textarea onChange={handleChange} value={textInput} />
         </label>
-        <input type="submit" value="Submit"/>
+        <input type="submit" value="Submit" />
         <input type="reset" value="Reset" onClick={handleReset} />
       </form>
       <div id="result">
