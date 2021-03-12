@@ -13,36 +13,41 @@ a badly formatted file. This line is pretty long! It's way more than 80 characte
 
 This      is a second paragraph with extraneous whitespace.`);
   const [textOutput, setTextOutput] = React.useState('');
+  const [margin, setMargin] = React.useState(0);
 
   const handleChange = event => {
     setTextInput(event.target.value);
   };
 
+  const handleMargin = event => {
+    setMargin(parseInt(event.target.value));
+  }
+
   const handleSubmit = event => {
     event.preventDefault();
-    transformText(textInput);
+    transformText(textInput, margin);
   };
 
-  const transformText = input => {
+  const transformText = (input = "", margin = 0) => {
     let output = "";
     const paragraphsFormatted = []
     const paragraphs = input.split(DOUBLE_LINE_BREAK);
     const paragraphsValid = paragraphs.filter(paragraph => paragraph !== EMPTY)
 
     paragraphsValid.forEach(paragraph => {
-      const paragraphFormatted = transformParagraph(paragraph);
+      const maxLengthByLineWithMargin = MAX_LENGTH_BY_LINE - margin;
+      const paragraphFormatted = transformParagraph(paragraph, maxLengthByLineWithMargin, margin);
       paragraphsFormatted.push(paragraphFormatted);
     })
 
-    if (paragraphsFormatted.length > 1) {
-      output = paragraphsFormatted.join(DOUBLE_LINE_BREAK);
-    } else {
-      output = paragraphsFormatted;
-    }
+    output = generatorMargin(margin, LINE_BREAK)
+      + paragraphsFormatted.join(DOUBLE_LINE_BREAK)
+      + generatorMargin(margin + 1, LINE_BREAK);
+
     setTextOutput(output);
   }
 
-  const transformParagraph = (paragraph = "") => {
+  const transformParagraph = (paragraph = "", maxLengthByLine = 0, margin = 0) => {
     let paragraphFormatted = "";
     const paragraphReplaceLineBreak = paragraph.replaceAll(LINE_BREAK, SPACE);
     const words = paragraphReplaceLineBreak.split(SPACE);
@@ -52,29 +57,42 @@ This      is a second paragraph with extraneous whitespace.`);
       const currentLineLength = line.length;
       const wordLength = word.length;
       const lineLength = currentLineLength + wordLength;
-
-      if (lineLength <= MAX_LENGTH_BY_LINE) {
-        if (line === "") {
-          line = word;
-        } else {
-          line = line + " " + word;
-        }
+      if (lineLength + margin <= maxLengthByLine) {
+        line += word + " ";
       } else {
-        paragraphFormatted = paragraphFormatted + line;
+        paragraphFormatted = paragraphFormatted + addLeftMargin(line.trimEnd(), margin, SPACE);
+
         if (line === "") {
           line = word;
         } else {
-          line = "\n" + word;
+          line = "\n" + generatorMargin(margin, SPACE) + word + " ";
         }
       }
     })
-    paragraphFormatted = paragraphFormatted + line;
+    paragraphFormatted = paragraphFormatted + addLeftMargin(line.trimEnd(), margin, SPACE);
+
     return paragraphFormatted;
+  }
+
+  const addLeftMargin = (line = "", margin = 0, character = " ") => {
+    return generatorMargin(margin, character) + line;
+  }
+
+  const generatorMargin = (quantity = 0, character = " ") => {
+    let margin = "";
+    let counter = 0;
+
+    while (counter < quantity) {
+      margin += character;
+      counter++;
+    }
+    return margin;
   }
 
   const handleReset = () => {
     setTextInput("");
     setTextOutput("");
+    setMargin(0);
   };
 
   return (
@@ -83,10 +101,12 @@ This      is a second paragraph with extraneous whitespace.`);
         <h1>Career Lab | Take-Home Assignment</h1>
       </header>
       <form onSubmit={handleSubmit}>
+        <label htmlFor="margin">Margin:</label>
+        <input type="number" name="margin" id="margin" value={margin} onChange={handleMargin} />
         <label>
-          <textarea onChange={handleChange} value={textInput}/>
+          <textarea onChange={handleChange} value={textInput} />
         </label>
-        <input type="submit" value="Submit"/>
+        <input type="submit" value="Submit" />
         <input type="reset" value="Reset" onClick={handleReset} />
       </form>
       <div id="result">
