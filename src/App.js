@@ -34,11 +34,8 @@ This      is a second paragraph with extraneous whitespace.`);
       paragraphsFormatted.push(paragraphFormatted);
     })
 
-    if (paragraphsFormatted.length > 1) {
-      output = paragraphsFormatted.join(DOUBLE_LINE_BREAK);
-    } else {
-      output = paragraphsFormatted;
-    }
+    output = paragraphsFormatted.join(DOUBLE_LINE_BREAK);
+
     setTextOutput(output);
   }
 
@@ -54,22 +51,20 @@ This      is a second paragraph with extraneous whitespace.`);
       const lineLength = currentLineLength + wordLength;
 
       if (lineLength <= MAX_LENGTH_BY_LINE) {
-        if (line === "") {
-          line = word;
-        } else {
-          line = line + " " + word;
-        }
+        line += word + " ";
       } else {
         paragraphFormatted = paragraphFormatted + line;
+
         if (line === "") {
           line = word;
         } else {
-          line = "\n" + word;
+          line = "\n" + word + " ";
         }
       }
     })
     paragraphFormatted = paragraphFormatted + line;
-    return paragraphFormatted;
+
+    return paragraphFormatted.trim();
   }
 
   const handleReset = () => {
@@ -84,9 +79,9 @@ This      is a second paragraph with extraneous whitespace.`);
       </header>
       <form onSubmit={handleSubmit}>
         <label>
-          <textarea onChange={handleChange} value={textInput}/>
+          <textarea onChange={handleChange} value={textInput} />
         </label>
-        <input type="submit" value="Submit"/>
+        <input type="submit" value="Submit" />
         <input type="reset" value="Reset" onClick={handleReset} />
       </form>
       <div id="result">
